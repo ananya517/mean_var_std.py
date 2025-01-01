@@ -1,60 +1,43 @@
-import pandas as pd
+import numpy as np
 
-def analyze_demographic_data(data):
-    # 1. How many people of each race are represented in this dataset?
-    race_count = data['race'].value_counts()
+def calculate(numbers):
+    if len(numbers) != 9:
+        raise ValueError("List must contain nine numbers.")
+    
+    # Convert the list into a 3x3 numpy array
+    arr = np.array(numbers).reshape(3, 3)
+    
+    # Calculate mean, variance, standard deviation, max, min, and sum for rows, columns, and flattened
+    mean_axis1 = np.mean(arr, axis=1).tolist()
+    mean_axis2 = np.mean(arr, axis=0).tolist()
+    mean_flattened = np.mean(arr).tolist()
 
-    # 2. What is the average age of men?
-    average_age_men = data[data['sex'] == 'Male']['age'].mean()
+    variance_axis1 = np.var(arr, axis=1).tolist()
+    variance_axis2 = np.var(arr, axis=0).tolist()
+    variance_flattened = np.var(arr).tolist()
 
-    # 3. What is the percentage of people who have a Bachelor's degree?
-    percentage_bachelors = (data[data['education'] == 'Bachelors'].shape[0] / data.shape[0]) * 100
+    std_dev_axis1 = np.std(arr, axis=1).tolist()
+    std_dev_axis2 = np.std(arr, axis=0).tolist()
+    std_dev_flattened = np.std(arr).tolist()
 
-    # 4. What percentage of people with advanced education (Bachelors, Masters, or Doctorate) make more than 50K?
-    advanced_education = data[data['education'].isin(['Bachelors', 'Masters', 'Doctorate'])]
-    advanced_education_high_income = advanced_education[advanced_education['salary'] == '>50K']
-    percentage_high_income_advanced = (advanced_education_high_income.shape[0] / advanced_education.shape[0]) * 100
+    max_axis1 = np.amax(arr, axis=1).tolist()
+    max_axis2 = np.amax(arr, axis=0).tolist()
+    max_flattened = np.amax(arr).tolist()
 
-    # 5. What percentage of people without advanced education make more than 50K?
-    no_advanced_education = data[~data['education'].isin(['Bachelors', 'Masters', 'Doctorate'])]
-    no_advanced_education_high_income = no_advanced_education[no_advanced_education['salary'] == '>50K']
-    percentage_high_income_no_advanced = (no_advanced_education_high_income.shape[0] / no_advanced_education.shape[0]) * 100
+    min_axis1 = np.amin(arr, axis=1).tolist()
+    min_axis2 = np.amin(arr, axis=0).tolist()
+    min_flattened = np.amin(arr).tolist()
 
-    # 6. What is the minimum number of hours a person works per week?
-    min_hours_per_week = data['hours-per-week'].min()
+    sum_axis1 = np.sum(arr, axis=1).tolist()
+    sum_axis2 = np.sum(arr, axis=0).tolist()
+    sum_flattened = np.sum(arr).tolist()
 
-    # 7. What percentage of the people who work the minimum number of hours per week have a salary of more than 50K?
-    min_hours_high_income = data[(data['hours-per-week'] == min_hours_per_week) & (data['salary'] == '>50K')]
-    percentage_min_hours_high_income = (min_hours_high_income.shape[0] / data[data['hours-per-week'] == min_hours_per_week].shape[0]) * 100
-
-    # 8. What country has the highest percentage of people that earn >50K and what is that percentage?
-    country_income = data[data['salary'] == '>50K'].groupby('native-country').size() / data.groupby('native-country').size() * 100
-    highest_percentage_country = country_income.idxmax()
-    highest_percentage_value = country_income.max()
-
-    # 9. Identify the most popular occupation for those who earn >50K in India.
-    india_high_income = data[(data['native-country'] == 'India') & (data['salary'] == '>50K')]
-    most_popular_occupation_india = india_high_income['occupation'].mode()[0]
-
+    # Prepare the dictionary to return
     return {
-        "race_count": race_count,
-        "average_age_men": round(average_age_men, 1),
-        "percentage_bachelors": round(percentage_bachelors, 1),
-        "percentage_high_income_advanced": round(percentage_high_income_advanced, 1),
-        "percentage_high_income_no_advanced": round(percentage_high_income_no_advanced, 1),
-        "min_hours_per_week": min_hours_per_week,
-        "percentage_min_hours_high_income": round(percentage_min_hours_high_income, 1),
-        "highest_percentage_country": highest_percentage_country,
-        "highest_percentage_value": round(highest_percentage_value, 1),
-        "most_popular_occupation_india": most_popular_occupation_india
+        'mean': [mean_axis1, mean_axis2, mean_flattened],
+        'variance': [variance_axis1, variance_axis2, variance_flattened],
+        'standard deviation': [std_dev_axis1, std_dev_axis2, std_dev_flattened],
+        'max': [max_axis1, max_axis2, max_flattened],
+        'min': [min_axis1, min_axis2, min_flattened],
+        'sum': [sum_axis1, sum_axis2, sum_flattened]
     }
-
-# Example usage (if testing the function):
-if __name__ == "__main__":
-    try:
-        # Ensure the file 'adult.csv' is in the same directory or provide the correct path
-        data = pd.read_csv('adult.csv')  # Update this path as necessary
-        result = analyze_demographic_data(data)
-        print(result)
-    except FileNotFoundError:
-        print("The file 'adult.csv' was not found. Please make sure the file path is correct.")
